@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <link rel="stylesheet" href="/public/main.css">
+
+    <title>Todo - Detail</title>
+  </head>
+  <body>
+
+    <%- include('../nav.html') %>
+
+    <div class="container mt-5">
+      <h4 class="text-center">상세페이지</h4>
+      <div class="card" style="width: 100%;">
+        <div class="card-body">
+
+          <!-- post -->
+          <h5 class="card-title">
+            <%= post.title %>
+            <% if (post.open == 'member') { %>
+              <i class="bi bi-lock-fill"></i>
+            <% } %>
+          </h5>
+          <h6 class="card-subtitle mb-2 text-muted"><%= post.nick + ' ' + post.date %></h6>
+          <hr>
+          <p class="card-text" style="white-space:pre;"><%= post.content %>(post id: <%= post._id %>)</p>
+          
+
+          <!-- buttons -->
+          <form action="/my/chat" method="POST">
+
+            <input type="hidden" class="form-control" value="<%= post.user %>" name="receiver_id"> 
+            <input type="hidden" class="form-control" value="<%= post.nick %>" name="receiver_nick"> 
+
+
+            <div class="btn-group btn-group-sm" role="group">
+
+              <!-- <button type="button" class="btn btn-light chat" data-id="<%= post.user %>">
+                <i class="bi bi-chat chat" data-id="<%= post.user %>"></i>
+              </button> -->
+              <button type="submit" class="btn btn-light">
+                <i class="bi bi-chat chat" data-id="<%= post.user %>"></i>
+              </button>
+
+
+              <% if ( user && (user == post.user) ) { %>
+                <a role="button" class="btn btn-light" href="<%= '/article/edit/' + post._id %>">
+                  <i class="bi bi-pencil"></i>
+                </a>
+
+                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#modal0">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              <% } %>
+              
+            </div>
+
+          </form>
+
+
+        </div>
+      </div>
+    </div>
+    
+    <div class="container mt-3">
+
+      <!-- add comment -->
+      <form action="/article/comment/" method="POST">
+        <div class="input-group mb-2">
+          <input type="hidden" class="form-control" name="post" value="<%= post._id %>">
+          <textarea type="text" class="form-control comment" name="comment"></textarea>
+          <button class="input-group-append btn btn-success mb-4 comment">입력</button>
+        </div>
+      </form>
+
+      <!-- show comment -->
+      <% for (var i = 0; i < comments.length; i ++ ) { %>
+        <div class="card" style="width: 100%;">
+          <div class="card-body">
+            <span class="card-title"><%= comments[i].nick %></span>
+            <small class="card-subtitle mb-2 text-muted"><%= comments[i].date %></small>
+            <small>
+              <a href="#" class="card-link">삭제하기</a>
+              <a href="#" class="card-link">수정하기</a>
+            </small>
+            <p class="card-text"><%= comments[i].comment %></p>
+          </div>
+        </div>
+      <% } %>
+
+    </div>
+
+    <!-- Modal for delete -->
+    <div class="modal fade" id="modal0" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">삭제하겠습니까?</h5>
+          </div>
+          <div class="modal-footer" data-dismiss="modal">
+            <button type="button" class="delete btn btn-success" data-id="<%= post._id %>">yes</button>
+            <button type="button" class="btn btn-secondary">no</button>
+          </div>
+        </div>
+      </div>
+    </div>
+   
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script>
+      $("button.comment").css('height', 72);
+      $("button.comment").css('width', 72);
+      $("textarea.comment").css('height', 72);
+
+      $('.delete').click(function(e){
+        var postNumber = e.target.dataset.id;
+        var thisObj = $(this);
+
+        $.ajax({
+        method : 'DELETE',
+        url : '/article/delete',
+        data : {_id : postNumber}
+        }).done(function(result){
+          location.replace(document.referrer);
+          // window.history.back();
+          // location.href = '/board/list';
+          // thisObj.parents('a').fadeOut();
+          
+        }).fail(function(xhr, textStatus, errorThrown){
+          // console.log(xhr, textStatus, errorThrown);
+          alert('권한이 없습니다.');
+        })
+      });
+
+      // $('.chat').click(function(e){
+      //   var receiver_id = e.target.dataset.id;
+
+      //   $.post('/my/chat', {receiver_id : receiver_id}).then(()=>{
+
+      //   }).done(function(result){
+          
+      //   }).fail(function(){
+      //     alert('로그인을 해주세요');
+      //   })
+      // });
+
+      // $('.chat').click(function(e){
+      //   var id = e.target.dataset.id;
+      //   $.post('/chatroom', {receiver : id}).then(()=>{
+      //     console.log('success')
+      //   })
+      // })
+
+    </script>
+
+
+      <!-- Optional JavaScript; choose one of the two! -->
+
+      <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+      <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+
+      <!-- Option 2: Separate Popper and Bootstrap JS -->
+      <!--
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+      -->
+  </body>
+</html>

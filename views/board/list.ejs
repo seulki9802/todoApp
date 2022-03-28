@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <link rel="stylesheet" href="/public/main.css">
+
+    <title>Todo - List</title>
+  </head>
+  <body>
+    
+    <%- include('../nav.html') %>
+
+    <div class="list-group container mt-5">
+
+
+      <!-- 게시판 -->
+      <h4 class="text-center mb-3" id="boardName"></h4>
+      
+      <div class="container mb-3 btn-group" role="group" aria-label="Basic example" style="width: 80%;">
+        <a role="button" class="btn btn-outline-secondary" id="total" href="/board/total">전체</a>
+        <a role="button" class="btn btn-outline-secondary" id="memo" href="/board/memo">메모</a>
+        <a role="button" class="btn btn-outline-secondary" id="diet" href="/board/diet">다이어트</a>
+        <a role="button" class="btn btn-outline-secondary" id="study" href="/board/study">공부</a>
+      </div>
+
+
+      <!-- <h4 class="text-center">
+        <div class="dropdown">
+          게시판
+          <a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-expanded="false"></a>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="#">전체</a>
+            <a class="dropdown-item" href="#">자유게시판</a>
+            <a class="dropdown-item" href="#">다이어트</a>
+            <a class="dropdown-item" href="#">공부</a>
+          </div>
+        </div>
+      </h4> -->
+
+      <!-- 검색창 -->
+      <form action="/board/<%= board %>/search" method="GET">
+        <div class="container input-group mb-2">
+          <div class="dropdown">
+          <button class="btn btn-outline-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
+            제목
+          </button>
+            <div class="search dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item">제목</a>
+              <a class="dropdown-item">내용</a>
+              <a class="dropdown-item">제목 + 내용</a>
+            </div>
+          </div>
+          <input type="text" class="form-control" name="query">
+          <input type="hidden" class="form-control" name="what" value="제목">
+          <button class="input-group-append btn btn-success mb-4">검색</button>
+        </div>
+      </form>
+
+      <!-- 글목록 -->
+      <% for (var i = 0; i < posts.length; i ++) { %>
+        <a href="/board/<%= board %>/detail/<%= posts[i]._id %>" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <% if ( user && ( user.toString() == posts[i].user ) ) { %>
+              <span class="mb-1" style="font-weight: bold;">
+            <% } else { %>
+              <span class="mb-1">
+            <% } %>
+              <%= posts.length - i  %>. <%= posts[i].title %> (글쓴이: <%= posts[i].nick %>)
+              <% if (posts[i].open == 'member') { %>
+                <i class="bi bi-lock-fill"></i>
+              <% } %>
+            </span>
+            <small><%= posts[i].date %></small>
+          </div>
+        </a>
+      <% } %>
+
+      <!-- Modal -->
+      <!-- <% for (var i = 0; i < posts.length; i ++) { %>
+        <div class="modal fade" id="<%= 'modal' + posts[i]._id %>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" style="width: 30%;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">삭제하겠습니까?</h5>
+              </div>
+              <div class="modal-footer" data-dismiss="modal">
+                <button type="button" class="delete btn btn-success" data-id="<%= posts[i]._id %>">yes</button>
+                <button type="button" class="btn btn-secondary">no</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% } %> -->
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script>
+      // $('.modal').on('keypress', function (e) {
+      //   console.log("??");
+      //   var keycode = (e.keyCode ? e.keyCode : e.which);
+      //   if(keycode == '13'){
+      //     $('.delete').click();   
+      //   }
+      // });
+
+      var board = "<%= board %>"
+      var search = "<%= search %>"
+      var text;
+
+      if (board == 'total') { text = '전체 게시판'; }
+      if (board == 'memo') { text = '메모 게시판'; }
+      if (board == 'diet') { text = '다이어트 게시판'; }
+      if (board == 'study') { text = '스터디 게시판'; }
+
+      if (search) { text = text + " '" + search + "' 검색결과"}
+
+      $('#' + board).attr("class",  "btn btn-secondary")
+      $('#boardName').html(text);
+
+
+      // if (board == 'total') { $('#boardName').html('전체 게시판'); }
+      // if (board == 'memo') { $('#boardName').html('메모 게시판'); }
+      // if (board == 'diet') { $('#boardName').html('다이어트 게시판'); }
+      // if (board == 'study') { $('#boardName').html('스터디 게시판'); }
+
+      
+
+      $('.delete').click(function(e){
+        var postNumber = e.target.dataset.id;
+        var thisObj = $(this);
+
+        $.ajax({
+        method : 'DELETE',
+        url : '/article/delete',
+        data : {_id : postNumber}
+        }).done(function(result){
+          console.log(result);
+          console.log('ohgohohoh...');
+          // location.reload(); 새로고침
+          // thisObj.parents('a').fadeOut();
+          
+        }).fail(function(xhr, textStatus, errorThrown){
+          console.log(xhr, textStatus, errorThrown);
+        })
+      })
+
+      $('.search').children('.dropdown-item').click(function(e){
+        var what = e.target.text;
+        $('#dropdownMenuButton').html(what);
+        $('input[name=what]').val(what);
+      })
+
+
+    </script>
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+    -->
+
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+    <link rel="stylesheet" href="/public/main.css">
+
+    <title>Todo - List</title>
+  </head>
+  <body>
+
+    <%- include('../nav.html') %>
+
+    <div class="list-group container mt-5">
+
+      <h4 class="text-center">검색 결과</h4>
+
+      <form action="/board/<%= board %>/search" method="GET">
+        <div class="container input-group mb-2">
+          <div class="dropdown">
+          <button class="btn btn-outline-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-expanded="false">
+            제목
+          </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item">제목</a>
+              <a class="dropdown-item">내용</a>
+              <a class="dropdown-item">제목 + 내용</a>
+            </div>
+          </div>
+          <input type="text" class="form-control" name="query">
+          <input type="hidden" class="form-control" name="what" value="제목">
+          <button class="input-group-append btn btn-success mb-4">검색</button>
+        </div>
+      </form>
+
+        <% for (var i = 0; i < posts.length; i ++) { %>
+          <% if (board == 'total' || board == posts[i].board) { %>
+            <a href="<%= '/detail/' + posts[i]._id %>" class="list-group-item list-group-item-action">
+        
+              <div class="d-flex w-100 justify-content-between">
+    
+                <h5 class="mb-1"><%= i + 1 %>. <%= posts[i].title %></h5>
+    
+                <button type="button" class="close" aria-label="Close" data-toggle="modal" data-target="<%= '#modal' + posts[i]._id %>">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+    
+              </div>
+    
+              <small><%= posts[i].date %></small>
+    
+            </a>
+          <% } %>
+        <% } %>
+
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script>
+      $('.dropdown-item').click(function(e){
+        var what = e.target.text;
+        $('#dropdownMenuButton').html(what);
+        $('input[name=what]').val(what);
+      })
+    </script>
+
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script>
+        $('#search').click(function(){
+            var inputValue = $('#search-input').val()
+            window.location.replace('/search?search=' + inputValue)
+        });
+    </script> -->
+
+      <!-- Optional JavaScript; choose one of the two! -->
+
+      <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+      <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+
+      <!-- Option 2: Separate Popper and Bootstrap JS -->
+      <!--
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+      -->
+  </body>
+</html>

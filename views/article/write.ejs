@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+        <link rel="stylesheet" href="/public/main.css">
+
+        <title>Todo - Write</title>
+    </head>
+    <body>
+
+        <%- include('../nav.html') %>
+
+        <div class="container mt-5">
+            <form action="/article/add" method="POST">
+
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">게시판 선택</label>
+                    <select class="form-control" id="exampleFormControlSelect1" name="board">
+                      <option value="memo">메모</option>
+                      <option value="diet">다이어트</option>
+                      <option value="study">공부</option>
+                    </select>
+                </div>
+                  
+                <div class="form-group">
+                    <label>제목</label>
+                    <input type="text" class="form-control" name="title">
+                </div>
+                <div class="form-group">
+                    <label>내용</label>
+                    <textarea type="text" class="form-control" name="content"></textarea>
+                </div>
+
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="openAll" name="open" value="all" class="custom-control-input" checked>
+                    <label class="custom-control-label" for="openAll">전체 공개</label>
+                </div>
+                <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="openMember" name="open" value="member" class="custom-control-input">
+                    <label class="custom-control-label" for="openMember">회원 공개</label>
+                </div>
+
+                <button type="submit" class="btn btn-success">글쓰기</button>
+            </form>
+        </div>
+
+        <!-- <div class="container mt-5">
+            <div class="btn-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle" id="month" type="button" data-toggle="dropdown" aria-expanded="false">
+                  1월
+                </button>
+                <div class="dropdown-menu">
+                    <% for (var i = 1; i <= 12; i ++) { %>
+                        <span class="month dropdown-item" data-id="<%= i %>"><%= i %></span>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="btn-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle" id="day" type="button" data-toggle="dropdown" aria-expanded="false">
+                  1일
+                </button>
+                <div class="dropdown-menu">
+                    <% for (var i = 1; i <= 31; i ++) { %>
+                        <span class="day dropdown-item" data-id="<%= i %>"><%= i %></span>
+                    <% } %>
+                </div>
+            </div>
+        </div> -->
+
+
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+        <script>
+            // $('.month').click(function(e){
+            //     $('#month').html(e.target.dataset.id + '월');
+            // })
+
+            // $('.day').click(function(e){
+            //     $('#day').html(e.target.dataset.id + '일');
+            // })
+
+            $('input[type="text"]').keydown(function() {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                };
+            });
+
+            $("textarea.form-control").css('height', $(window).height() * 0.55);
+
+            // $("textarea.form-control").on('keydown keyup', function () {
+            //     $(this).height(1).height( $(this).prop('scrollHeight')+12 );	
+            // });
+    
+        </script>
+    
+    
+    
+    
+    
+          <!-- Optional JavaScript; choose one of the two! -->
+    
+          <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+          <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+    
+          <!-- Option 2: Separate Popper and Bootstrap JS -->
+          <!--
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+          -->
+      </body>
+    </html>
