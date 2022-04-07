@@ -54,14 +54,15 @@ router.get('/:board/detail/:id', function(req, res){
 
 router.get('/:board/search', function(req, res){
     var path;
-    if (req.query.what == '제목') path = "title";
-    else if (req.querywhat == '내용') path = "content";
+    if (req.query.what == '작성자') path = "nick";
+    else if (req.query.what == '제목') path = "title";
+    else if (req.query.what == '내용') path = "content";
     else path = ["title", "content"];
 
     var searchObj = [
         {
             $search: {
-                index: 'search', //mongoDB 에서 설정한 index 이름
+                index: 'postSearch', //mongoDB 에서 설정한 index 이름
                 text: {
                     query: req.query.query,
                     path: path
@@ -70,10 +71,16 @@ router.get('/:board/search', function(req, res){
         },
         // { $project : { title: 1, _id: 0, score: { $meta: "searchScore"} } },
         { $sort : { _id : 1 } },
-        { $limit : 5 }
+        { $limit : 5 },
     ]
+
+    if (req.params.board != 'total') searchObj[searchObj.length] = { $match : { board : req.params.board } }
+
     req.app.db.collection('post').aggregate(searchObj).toArray(function(error, result){
-        if (error) return res.render('fail.ejs')
+        if (error) {
+            console.log(error)
+            return res.render('fail.ejs')
+        }
         // if (!result.length) return res.send("<script>alert('게시글이 존재하지 않습니다..'); history.back();</script>");
         res.render('board/list.ejs', { posts : result, user : req.user, board : req.params.board, search : req.query.query })
     })
