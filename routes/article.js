@@ -60,6 +60,23 @@ router.delete('/delete', function(req, res){
     // })
 })
 
+
+
+router.delete('/delete-comment', function(req, res){
+    req.body._id = new req.app.ObjectId(req.body._id)
+    var deleteData = { _id : req.body._id, user : req.user._id.toString() }
+    console.log(deleteData)
+
+    req.app.db.collection('comment').deleteOne(deleteData, function(error, result){
+        if (error) return res.status(400).send({ message : "fail" });
+
+        console.log(result)
+
+        res.status(200).send({message : "success" });
+    })
+})
+
+
 router.get('/edit/:id', function(req, res){
     var editData = { _id : parseInt(req.params.id) }
     req.app.db.collection('post').findOne(editData, function(error, result){

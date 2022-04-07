@@ -69,16 +69,9 @@
       </div>
     </div>
     
-    <div class="container mt-3">
+    <div class="container mt-5">
 
-      <!-- add comment -->
-      <form action="/article/comment/" method="POST">
-        <div class="input-group mb-2">
-          <input type="hidden" class="form-control" name="post" value="<%= post._id %>">
-          <textarea type="text" class="form-control comment" name="comment"></textarea>
-          <button class="input-group-append btn btn-success mb-4 comment">입력</button>
-        </div>
-      </form>
+      <h5>댓글</h5>
 
       <!-- show comment -->
       <% for (var i = 0; i < comments.length; i ++ ) { %>
@@ -87,13 +80,22 @@
             <span class="card-title"><%= comments[i].nick %></span>
             <small class="card-subtitle mb-2 text-muted"><%= comments[i].date %></small>
             <small>
-              <a href="#" class="card-link">삭제하기</a>
-              <a href="#" class="card-link">수정하기</a>
+              <a href="#" class="card-link delete-comment" data-id="<%= comments[i]._id %>">삭제하기</a>
+              <a href="#" class="card-link edit-comment" data-id="<%= comments[i]._id %>">수정하기</a>
             </small>
             <p class="card-text"><%= comments[i].comment %></p>
           </div>
         </div>
       <% } %>
+
+      <!-- add comment -->
+      <form action="/article/comment/" method="POST">
+        <div class="input-group mt-3">
+          <input type="hidden" class="form-control" name="post" value="<%= post._id %>">
+          <textarea type="text" class="form-control comment" name="comment"></textarea>
+          <button class="input-group-append btn btn-success mb-4 comment">입력</button>
+        </div>
+      </form>
 
     </div>
 
@@ -120,7 +122,7 @@
 
       $('.delete').click(function(e){
         var postNumber = e.target.dataset.id;
-        var thisObj = $(this);
+        // var thisObj = $(this);
 
         $.ajax({
         method : 'DELETE',
@@ -137,6 +139,30 @@
           alert('권한이 없습니다.');
         })
       });
+
+      $('.delete-comment').click(function(e){
+        var commentId = e.target.dataset.id;
+
+        $.ajax({
+          method : 'DELETE',
+          url : '/article/delete-comment',
+          data : { _id : commentId }
+        }).done(function(result){
+          location.reload();
+        }).fail(function(xhr, textStatus, errorThrown){
+          alert('권한이 없습니다.');
+        })
+      })
+
+      $('.edit-comment').click(function(e){
+        var cardBody = $(this).parent();
+        var textarea = "<textarea type='text' class='form-control comment' name='comment'></textarea>"
+
+        cardBody.siblings('p').remove();
+        cardBody.append(textarea);
+      })
+
+
 
       // $('.chat').click(function(e){
       //   var receiver_id = e.target.dataset.id;
