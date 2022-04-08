@@ -19,32 +19,53 @@
             <form action="/sign/up" method="POST">
                 <div class="form-group">
                     <label for="inputEamil">Email address</label>
-                    <input type="email" class="form-control" id="inputEamil" aria-describedby="emailHelp" name="email">
-                    <small id="emailHelp" class="form-text text-muted">인증에 사용될 메일입니다(응안해).</small>
+                    <input type="email" class="form-control" aria-describedby="emailHelp" name="email">
+                    <small class="form-text text-muted">인증에 사용될 메일입니다(응안해).</small>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword">Password</label>
-                    <input type="text" class="form-control" id="inputPassword" name="pw">
-                    <!-- <input type="password" class="form-control mt-2" id="inputPassword2" aria-describedby="passwordCheck">
-                    <small id="passwordCheck" class="form-text text-muted">For password check, input your password again</small> -->
+                    <input type="text" class="form-control" name="pw">
                 </div>
                 <div class="form-group">
                     <label for="inputPassword">Nickname</label>
-                    <input type="text" class="form-control" id="inputPassword" name="nickname">
-                    <small id="emailHelp" class="form-text text-muted">너만의 고유한 닉네임을 지어봐~.</small>
+                    <div class="form-inline">
+                        <input type="text" class="form-control" name="nickname">
+                        <sapn class="btn btn-outline-success nickCheck" role="button">중복검사</span>
+                    </div>
+                    <small class="form-text text-muted" id="checkMessage">너만의 고유한 닉네임을 지어봐~.</small>
                 </div>
                 <button type="submit" class="btn btn-success mt-4">Sign Up!</button>
             </form>
         </div>
     
     
-    
-    
-    
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+        <script>
+            $('#checkMessage').css('color', 'blue');
+            $('small').css('color', 'red')
+
+            $('.nickCheck').click(function(e){
+                var nick = $('input[name=nickname]').val();
+                $.ajax({
+                    method : 'POST',
+                    url : '/sign/up/nickCheck',
+                    data : { nick : nick }
+                }).done(function(){
+                    alert('사용 가능한 닉네입입니다.')
+                    $('#checkMessage').text("사용 가능한 닉네임입니다.");
+                }).fail(function(){
+                    alert('이미 사용중인 닉네입입니다.')
+                    $('#checkMessage').text("닉네임을 다시 설정하세요.");
+                })
+
+            })
+        </script>
+
+
           <!-- Optional JavaScript; choose one of the two! -->
     
           <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
-          <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+          <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
     
           <!-- Option 2: Separate Popper and Bootstrap JS -->

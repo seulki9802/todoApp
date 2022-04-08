@@ -84,16 +84,38 @@ app.post('/sign/up', function(req, res){
 
         if (result) return res.send("<script>alert('이미 가입한 이메일입니다.'); history.back();</script>");
 
-        db.collection('signin').insertOne({
-            id : req.body.email,
-            pw : req.body.pw,
-            nick: req.body.nickname
-        }, function(error, result){
+        db.collection('signin').findOne( { nick : req.body.nickname }, function(error, result){
+            if (result) return res.send("<script>alert('아이디 중복을 확인하세요.'); history.back();</script>");
 
-            if (error) return res.render('fail.ejs');
-            res.redirect('/sign/in')
+            var memberInfo = {
+                id : req.body.email,
+                pw : req.body.pw,
+                nick: req.body.nickname
+            }
 
-        });
+            db.collection('signin').insertOne(memberInfo, function(error, result){
+                if (error) return res.render('fail.ejs');
+                res.redirect('/sign/in');
+            })
+        })
+        // db.collection('signin').insertOne({
+        //     id : req.body.email,
+        //     pw : req.body.pw,
+        //     nick: req.body.nickname
+        // }, function(error, result){
+
+        //     if (error) return res.render('fail.ejs');
+        //     res.redirect('/sign/in')
+
+        // });
+    })
+})
+
+app.post('/sign/up/nickCheck', function(req, res){
+    db.collection('signin').findOne( { nick : req.body.nick }, function(error, result){
+        if (error) return res.render('fail.ejs')
+        if (result) return res.send(400)
+        res.send(200)
     })
 })
 
