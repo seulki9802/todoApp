@@ -64,26 +64,32 @@
 
           </form>
 
-
         </div>
       </div>
     </div>
     
     <div class="container mt-5">
 
-      <h5>댓글</h5>
+      <label class="container">댓글</label>
 
       <!-- show comment -->
       <% for (var i = 0; i < comments.length; i ++ ) { %>
         <div class="card" style="width: 100%;">
           <div class="card-body">
-            <span class="card-title"><%= comments[i].nick %></span>
+            <% if ( user && (user == comments[i].user) ) { %>
+              <span class="card-title" style="font-weight: bold;"><%= comments[i].nick %></span>  
+            <% } else { %>
+              <span class="card-title"><%= comments[i].nick %></span>
+            <% } %>
             <small class="card-subtitle mb-2 text-muted"><%= comments[i].date %></small>
+            
+            <% if ( user && (user == comments[i].user) ) { %>
             <small>
-              <a href="#" class="card-link delete-comment" data-id="<%= comments[i]._id %>">삭제하기</a>
-              <a href="#" class="card-link edit-comment" data-id="<%= comments[i]._id %>">수정하기</a>
+              <a class="card-link delete-comment" role='button' data-id="<%= comments[i]._id %>">삭제하기</a>
+              <a class="card-link edit-comment" role='button' data-id="<%= comments[i]._id %>">수정하기</a>
             </small>
-            <p class="card-text"><%= comments[i].comment %></p>
+            <% } %>
+            <p class="card-text" style="white-space:pre;"><%= comments[i].comment %></p>
           </div>
         </div>
       <% } %>
@@ -92,7 +98,7 @@
       <form action="/article/comment/" method="POST">
         <div class="input-group mt-3">
           <input type="hidden" class="form-control" name="post" value="<%= post._id %>">
-          <textarea type="text" class="form-control comment" name="comment"></textarea>
+          <textarea type="text" class="form-control comment" name="comment" placeholder="댓글을 입력해 보세요. 최대 3줄까지 입력할 수 있습니다."></textarea>
           <button class="input-group-append btn btn-success mb-4 comment">입력</button>
         </div>
       </form>
@@ -119,6 +125,12 @@
       $("button.comment").css('height', 72);
       $("button.comment").css('width', 72);
       $("textarea.comment").css('height', 72);
+
+      // $("textarea").on('keydown keyup', function (e) {
+      //   var comment = $(this).val();
+      //   var commentLine = comment.split("\n").length;
+      //   console.log(commentLine)
+      // });
 
       $('.delete').click(function(e){
         var postNumber = e.target.dataset.id;
@@ -156,13 +168,44 @@
 
       $('.edit-comment').click(function(e){
         var cardBody = $(this).parent();
-        var textarea = "<textarea type='text' class='form-control comment' name='comment'></textarea>"
+
+        var text = cardBody.siblings('p').text();
+        var textarea = "<textarea type='text' class='form-control comment'>" + text + "</textarea>"
 
         cardBody.siblings('p').remove();
-        cardBody.append(textarea);
+        cardBody.parent().append(textarea);
+
+        var cancelButton = "<a class='card-link edit-comment-cancel' role='button'>수정취소</a>"
+        var editButton = "<a class='card-link edit-comment-request' role='button' data-id=" + e.target.dataset.id + ">수정하기</a>"
+
+        cardBody.children().remove();
+        cardBody.append(cancelButton)
+        cardBody.append(editButton)
       })
 
+      $(document).on("click",".edit-comment-cancel",function(){
+        location.reload();
+      })
 
+      $(document).on("click",".edit-comment-request",function(e){
+        var commentId = e.target.dataset.id;
+        var comment = $(this).parent().siblings('textarea').val();
+
+        var commentLine = comment.split("\n").length;
+
+        if (commentLine > 3 ) alert('세 줄을 초과할 수 없습니다')
+        else {
+          $.ajax({
+            method : 'PUT',
+            url : '/article/edit-comment',
+            data : { _id : commentId, comment : comment }
+          }).done(function(result){
+            location.reload();
+          }).fail(function(xhr, textStatus, errorThrown){
+            alert('권한이 없습니다.');
+          })
+        }
+      })
 
       // $('.chat').click(function(e){
       //   var receiver_id = e.target.dataset.id;
