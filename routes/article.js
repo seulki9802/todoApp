@@ -11,36 +11,44 @@ router.get('/write', function(req, res){
 })
 
 router.post('/add', function(req, res){
-    req.app.db.collection('counter').findOne({ name : 'totalPost' }, function(error, result){
-        if (error) return res.render('fail.ejs')
 
-        var totalPost = result.totalPost;
-        var postData = {
-            _id : totalPost + 1 ,
+    var content = req.body.content;
+    var contentLine = content.split("\n").length;
 
-            board : req.body.board,
-            open : req.body.open,
+    if (contentLine > 30 ) res.send("<script>alert('30 줄을 초과할 수 없습니다.'); history.back();</script>")
 
-            title : req.body.title,
-            content : req.body.content,
-            date : new Date().toLocaleString(),
-
-            user : req.user._id,
-            nick : req.user.nick
-        }
-
-        req.app.db.collection('post').insertOne(postData, function(error, result){
-            
-            req.app.db.collection('counter').updateOne({ name : 'totalPost' }, { $inc: { totalPost : 1 } }, function(error, reuslt){
-                if (error) return res.render('fail.ejs')
-
-                res.redirect('/article/write')
-
+    else {
+        req.app.db.collection('counter').findOne({ name : 'totalPost' }, function(error, result){
+            if (error) return res.render('fail.ejs')
+    
+            var totalPost = result.totalPost;
+            var postData = {
+                _id : totalPost + 1 ,
+    
+                board : req.body.board,
+                open : req.body.open,
+    
+                title : req.body.title,
+                content : req.body.content,
+                date : new Date().toLocaleString(),
+    
+                user : req.user._id,
+                nick : req.user.nick
+            }
+    
+            req.app.db.collection('post').insertOne(postData, function(error, result){
+                
+                req.app.db.collection('counter').updateOne({ name : 'totalPost' }, { $inc: { totalPost : 1 } }, function(error, reuslt){
+                    if (error) return res.render('fail.ejs')
+    
+                    res.redirect('/article/write')
+    
+                });
+    
             });
-
+    
         });
-
-    });
+    }
 
 })
 
@@ -60,23 +68,6 @@ router.delete('/delete', function(req, res){
     // })
 })
 
-
-
-router.delete('/delete-comment', function(req, res){
-    req.body._id = new req.app.ObjectId(req.body._id)
-    var deleteData = { _id : req.body._id, user : req.user._id.toString() }
-    console.log(deleteData)
-
-    req.app.db.collection('comment').deleteOne(deleteData, function(error, result){
-        if (error) return res.status(400).send({ message : "fail" });
-
-        console.log(result)
-
-        res.status(200).send({message : "success" });
-    })
-})
-
-
 router.get('/edit/:id', function(req, res){
     var editData = { _id : parseInt(req.params.id) }
     req.app.db.collection('post').findOne(editData, function(error, result){
@@ -86,35 +77,68 @@ router.get('/edit/:id', function(req, res){
 })
 
 router.put('/edit', function(req, res){
-    var editContents = {
-        title : req.body.title,
-        content : req.body.content,
-        open : req.body.open
-    }
 
-    req.app.db.collection('post').updateOne({ _id : parseInt(req.body.id) }, { $set: editContents }, function(error, result){
-        if (error) return res.render('fail.ejs');
-        res.redirect('/board/' +  req.body.board + '/detail/' + req.body.id)
-    });
+    var content = req.body.content;
+    var contentLine = content.split("\n").length;
+
+    if (contentLine > 30 ) res.send("<script>alert('30 줄을 초과할 수 없습니다.'); history.back();</script>")
+    
+    else{
+        var editContents = {
+            title : req.body.title,
+            content : req.body.content,
+            open : req.body.open
+        }
+    
+        req.app.db.collection('post').updateOne({ _id : parseInt(req.body.id) }, { $set: editContents }, function(error, result){
+            if (error) return res.render('fail.ejs');
+            res.redirect('/board/' +  req.body.board + '/detail/' + req.body.id)
+        });
+    }
 
 })
 
 router.post('/comment', function(req, res){
 
-    var commentData = {
-        comment : req.body.comment,
-        post : parseInt(req.body.post),
-        user : req.user._id,
-        nick : req.user.nick,
-        date : new Date().toLocaleString()
-    }
+    var comment = req.body.comment;
+    var commentLine = comment.split("\n").length;
 
-    req.app.db.collection('comment').insertOne(commentData, function(error, result){
-        if (error) { return res.render('fail.ejs') }
-        res.send("<script>location.replace(document.referrer);</script>")
+    if (commentLine > 3 ) res.send("<script>alert('세 줄을 초과할 수 없습니다.'); history.back();</script>")
+    else {
+        var commentData = {
+            comment : req.body.comment,
+            post : parseInt(req.body.post),
+            user : req.user._id,
+            nick : req.user.nick,
+            date : new Date().toLocaleString()
+        }
+    
+        req.app.db.collection('comment').insertOne(commentData, function(error, result){
+            if (error) { return res.render('fail.ejs') }
+            res.send("<script>location.replace(document.referrer);</script>")
+        })
+    }
+})
+
+router.delete('/delete-comment', function(req, res){
+    req.body._id = new req.app.ObjectId(req.body._id)
+    var deleteData = { _id : req.body._id, user : req.user._id.toString() }
+
+    req.app.db.collection('comment').deleteOne(deleteData, function(error, result){
+        if (error) return res.status(400).send({ message : "fail" });
+        res.status(200).send({ message : "success" });
     })
 })
 
+router.put('/edit-comment', function(req, res){
+    req.body._id = new req.app.ObjectId(req.body._id)
+
+    req.app.db.collection('comment').updateOne({ _id : req.body._id }, { $set : { comment : req.body.comment } }, function(error, result){
+        if (error) return res.status(400).send({ message : "fail" });
+        res.status(200).send({ message : "succeess" })
+        // res.send('<script>location.reload();</script>')
+    })
+})
 
 module.exports = router;
 
