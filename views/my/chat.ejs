@@ -39,15 +39,16 @@
            <div class="col-9 p-0">
              <div class="chat-room card">
                <h4 id ="chat-title">select a chat room</h4>
-                <ul class="list-group chat-content">
+               <ul class="list-group chat-content">
+                 select a chat room
+                  <!-- <li><span class="chat-box">채팅방1 내용</span></li>
                   <li><span class="chat-box">채팅방1 내용</span></li>
-                  <li><span class="chat-box">채팅방1 내용</span></li>
-                  <li><span class="chat-box mine">채팅방1 내용</span></li>
+                  <li><span class="chat-box mine">채팅방1 내용</span></li> -->
                 </ul>
             </div>
 
             <!-- send a message -->
-            <div class="input-group mt-2">
+            <div class="input-group mt-2" id="chat-input-send" style="display: none;">
               <input class="form-control" id="chat-input">
               <button class="btn btn-secondary" id="send">
                 <i class="bi bi-cursor-fill"></i>
@@ -67,12 +68,12 @@
         $('.list-group-item').click(function(){
           chatroomID = this.dataset.id;
           $('#chat-title').html('room: ' + chatroomID);
+          $('#chat-input-send').css('display', '')
 
           $.ajax({
             method : 'POST',
             url : '/my/chat/room/' + chatroomID
           }).done(function(result){
-            console.log(result)
             var messages = result.messages
             var user = result.user
             
@@ -82,6 +83,8 @@
               if ( messages[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + messages[i].content + '</span></li>')
               else $('.chat-content').append('<li><span class=\"chat-box\">' + messages[i].content + '</span></li>')
             }
+            
+            $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
 
           }).fail(function(xhr, textStatus, errorThrown){
             console.log("fail")
@@ -97,10 +100,8 @@
             content : chatContent
           }
 
-          console.log(sendData)
-
           $.post('/my/chat/message', sendData).then(()=>{
-            
+
           })
         })
       </script>
