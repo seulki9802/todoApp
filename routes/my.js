@@ -6,6 +6,7 @@ router.get('/page', function(req, res){
     res.render('my/page.ejs', { user : req.user })
 })
 
+//render chat page
 router.get('/chat', function(req, res){
 
     req.app.db.collection('chatroom').find( { users : req.user._id} ).toArray().then((result)=>{
@@ -13,8 +14,8 @@ router.get('/chat', function(req, res){
     })
 })
 
+//make a chat room
 router.post('/chat', function(req, res){
-    console.log(req.body.receiver_id)
     var chatData = {
         users : [req.body.receiver_id, req.user._id], //receiver, caleer
         nicks : [req.body.receiver_nick, req.user.nick],
@@ -27,8 +28,15 @@ router.post('/chat', function(req, res){
     })
 })
 
+//show a chat room
+router.post('/chat/room/:chatroom', function(req, res){
+    req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
+        res.send( { messages : result, user : req.user._id } )
+    })
+})
+
+//send a message
 router.post('/chat/message', function(req, res){
-    console.log("????")
     var inserData = {
         parent :  req.body.parent,
         content : req.body.content,
@@ -37,12 +45,8 @@ router.post('/chat/message', function(req, res){
     }
 
     req.app.db.collection('message').insertOne(inserData).then(()=>{
-        // console.log('awlekfjlsdfkajsf')
-        console.log("?????????????");
         res.send('ohoh')
     }).catch(()=>{
-        //if fail~
-        console.log("!!!!!!!!!!!!!")
         res.send('nono..');
     })
 })
