@@ -40,7 +40,6 @@
              <div class="chat-room card">
                <h4 id ="chat-title">select a chat room</h4>
                <ul class="list-group chat-content">
-                 select a chat room
                   <!-- <li><span class="chat-box">채팅방1 내용</span></li>
                   <li><span class="chat-box">채팅방1 내용</span></li>
                   <li><span class="chat-box mine">채팅방1 내용</span></li> -->
@@ -76,23 +75,12 @@
           }
 
           eventSorce = new EventSource('/my/chat/room/' + chatroomID);
-          
           eventSorce.addEventListener('test', function(e){
 
-            
             var data = JSON.parse(e.data),
                 user = data[data.length - 1]
 
             data.splice(data.length - 1, 1)
-
-            
-            $('.chat-content').empty();
-
-            // for (var i = 0; i < data.length; i ++) {
-            //   if ( data[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + data[i].content + '</span></li>')
-            //   else $('.chat-content').append('<li><span class=\"chat-box\">' + data[i].content + '</span></li>')
-            // }
-            // 아래 forEach랑 같은 역할
 
             data.forEach(function(i){
               if ( i.userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + i.content + '</span></li>')
@@ -100,6 +88,9 @@
             })
             
             $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
+
+            $('#chat-input').val('')
+
 
           })
 
@@ -117,6 +108,7 @@
 
           })
         })
+        
       </script>
 
 

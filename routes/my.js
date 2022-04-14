@@ -66,6 +66,21 @@ router.get('/chat/room/:chatroom', function(req, res){
         res.write('data: ' + JSON.stringify(result) + '\n\n');
     })
 
+    const pipeline = [
+        { $match: { 'fullDocument.parent' : req.params.chatroom } }
+    ];
+
+    const collection = req.app.db.collection('message');
+    const changeStream = collection.watch(pipeline);
+    changeStream.on('change', (result)=>{
+
+        var data = [result.fullDocument];
+        data[data.length] = req.user._id;
+        
+        res.write('event: test\n');
+        res.write('data: ' + JSON.stringify(data) + '\n\n');
+    });
+
 });
 
 
