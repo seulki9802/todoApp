@@ -72,6 +72,8 @@
 
           if (eventSorce != undefined ) {
             eventSorce.close()
+            $('.chat-content').empty();
+            console.log("!!")
           }
 
           eventSorce = new EventSource('/my/chat/room/' + chatroomID);
@@ -108,6 +110,21 @@
 
           })
         })
+
+        $("#chat-input").on("keyup",function(e){ 
+          if(e.keyCode==13) { 
+            var chatContent = $('#chat-input').val();
+            var sendData = {
+              parent : chatroomID,
+              content : chatContent
+            }
+
+            $.post('/my/chat/message', sendData).then(()=>{
+              //
+            })
+          } 
+        }); 
+
         
       </script>
 
