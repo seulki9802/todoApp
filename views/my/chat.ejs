@@ -71,6 +71,10 @@
           $('#chat-title').html('room: ' + chatroomID);
           $('#chat-input-send').css('display', '')
 
+          if (eventSorce != undefined ) {
+            eventSorce.close()
+          }
+
           eventSorce = new EventSource('/my/chat/room/' + chatroomID);
           
           eventSorce.addEventListener('test', function(e){
@@ -84,10 +88,16 @@
             
             $('.chat-content').empty();
 
-            for (var i = 0; i < data.length; i ++) {
-              if ( data[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + data[i].content + '</span></li>')
-              else $('.chat-content').append('<li><span class=\"chat-box\">' + data[i].content + '</span></li>')
-            }
+            // for (var i = 0; i < data.length; i ++) {
+            //   if ( data[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + data[i].content + '</span></li>')
+            //   else $('.chat-content').append('<li><span class=\"chat-box\">' + data[i].content + '</span></li>')
+            // }
+            // 아래 forEach랑 같은 역할
+
+            data.forEach(function(i){
+              if ( i.userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + i.content + '</span></li>')
+              else $('.chat-content').append('<li><span class=\"chat-box\">' + i.content + '</span></li>')
+            })
             
             $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
 
