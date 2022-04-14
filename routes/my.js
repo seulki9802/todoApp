@@ -28,12 +28,12 @@ router.post('/chat', function(req, res){
     })
 })
 
-//show a chat room
-router.post('/chat/room/:chatroom', function(req, res){
-    req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
-        res.send( { messages : result, user : req.user._id } )
-    })
-})
+//show a chat room(mine)
+// router.post('/chat/room/:chatroom', function(req, res){
+//     req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
+//         res.send( { messages : result, user : req.user._id } )
+//     })
+// })
 
 //send a message
 router.post('/chat/message', function(req, res){
@@ -50,6 +50,23 @@ router.post('/chat/message', function(req, res){
         res.send('nono..');
     })
 })
+
+//show a chat room
+router.get('/chat/room/:chatroom', function(req, res){
+
+    res.writeHead(200, {
+        "Connection" : "keep-alive",
+        "Content-Type" : "text/event-stream",
+        "Cache-Control" : "no-cache",
+    });
+
+    req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
+        result[result.length] = req.user._id;
+        res.write('event: test\n'); //event : test\n 이케 쓰면 안 된다? event랑 : 사이에 스페이스 있으면 안 된다?ㄹ??????/
+        res.write('data: ' + JSON.stringify(result) + '\n\n');
+    })
+
+});
 
 
 module.exports = router;

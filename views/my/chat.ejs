@@ -64,30 +64,33 @@
 
       <script>
         var chatroomID;
+        var eventSorce;
 
         $('.list-group-item').click(function(){
           chatroomID = this.dataset.id;
           $('#chat-title').html('room: ' + chatroomID);
           $('#chat-input-send').css('display', '')
 
-          $.ajax({
-            method : 'POST',
-            url : '/my/chat/room/' + chatroomID
-          }).done(function(result){
-            var messages = result.messages
-            var user = result.user
+          eventSorce = new EventSource('/my/chat/room/' + chatroomID);
+          
+          eventSorce.addEventListener('test', function(e){
+
+            
+            var data = JSON.parse(e.data),
+                user = data[data.length - 1]
+
+            data.splice(data.length - 1, 1)
+
             
             $('.chat-content').empty();
 
-            for (var i = 0; i < messages.length; i ++) {
-              if ( messages[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + messages[i].content + '</span></li>')
-              else $('.chat-content').append('<li><span class=\"chat-box\">' + messages[i].content + '</span></li>')
+            for (var i = 0; i < data.length; i ++) {
+              if ( data[i].userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + data[i].content + '</span></li>')
+              else $('.chat-content').append('<li><span class=\"chat-box\">' + data[i].content + '</span></li>')
             }
             
             $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
 
-          }).fail(function(xhr, textStatus, errorThrown){
-            console.log("fail")
           })
 
         })
