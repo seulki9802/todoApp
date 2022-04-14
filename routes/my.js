@@ -23,8 +23,16 @@ router.post('/chat', function(req, res){
         title : 'chat'
     }
 
-    req.app.db.collection('chatroom').insertOne(chatData).then((result)=>{
-        res.redirect('/my/chat')
+    // req.app.db.collection('chatroom').find( { users : req.receiver_id } ).toArray().then((result)=>{
+    req.app.db.collection('chatroom').findOne( { users : req.body.receiver_id }, function(error, result){
+        console.log(result)
+        
+        if (result) return res.send('<script> location.href ="/my/chat";')
+
+        req.app.db.collection('chatroom').insertOne(chatData).then((result)=>{
+            res.redirect('/my/chat')
+        })
+
     })
 })
 

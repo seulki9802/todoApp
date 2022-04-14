@@ -24,7 +24,7 @@
             <ul class="list-group chat-list">
 
               <% for (var i = 0; i < chatroom.length; i ++) { %>
-                <li class="list-group-item" data-id="<%= chatroom[i]._id %>">
+                <li class="list-group-item" data-id="<%= chatroom[i]._id %>" id="<%= chatroom[i]._id %>">
                   <h6><%= chatroom[i].title %></h6>
                   <% for (var k = 0; k < chatroom[i].nicks.length; k ++) { %>
                     <h6 class="text-small"><%= chatroom[i].nicks[k] %></h6>
