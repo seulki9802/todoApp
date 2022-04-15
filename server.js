@@ -4,6 +4,12 @@ const { response } = require('express');
 const express = require('express');
 const app = express();
 
+//socket.io
+const http = require('http').createServer(app);
+const {Server} = require('socket.io');
+const io = new Server(http);
+
+//
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended : true}));
 
@@ -26,8 +32,9 @@ MongoClient.connect(process.env.DB_URL, function(error, client){
     db = client.db('todoapp2');
     app.db = db;
 
-    app.listen(process.env.PORT, function(){
-        console.log('listening on ' + process.env.PORT);
+    // app.listen(process.env.PORT, function(){
+    http.listen(process.env.PORT, function(){
+            console.log('listening on ' + process.env.PORT);
     });
 
 })
@@ -347,3 +354,35 @@ passport.deserializeUser(function(id, done){
 //     });
 
 // })
+
+app.get('/socket', function(req, res){
+    res.render('socket.ejs')
+})
+
+io.on('connection', function(socket){
+    console.log("=================user on===============");
+    console.log(socket.id)
+
+    //1:1
+    socket.on('personalChat', function(data){
+        io.to(socket.id).emit('broadcast-one', data)
+    })
+
+    //단체
+    socket.on('groupChat', function(data){
+        io.emit('broadcast-all', data)
+    })
+
+    //join room1 ?? make a room1?
+    socket.on('room1-join', function(){
+        console.log(socket.id + " enter in room1");
+        socket.join('room1');
+    })
+
+    //message room1
+    socket.on('room1-send', function(data){
+        io.to('room1').emit('broadcast-room1', data)
+    })
+
+
+})

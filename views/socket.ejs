@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+        <link rel="stylesheet" href="/public/main.css">
+
+        <title>Todo - Home</title>
+    </head>
+    <body>
+        <%- include('nav.html') %>
+        <!-- jqeury -->
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+        <!-- socket.io -->
+        <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+
+        <div>
+            <input id="input1">
+            <button id="send1">personal Chat</button>
+        </div>
+        
+        <div>
+            <input id="input2">
+            <button id="send2">group Chat</button>
+        </div>
+        
+        <hr>
+        <div>
+            <button id="room1">enter room1</button><br>
+            <input id="input3">
+            <button id="room1-send">send a message in room1</button>
+        </div>
+
+        <div id="myMessage" style="background-color: yellow;">
+            My Message
+        </div>
+
+        <div id="serverMessage" style="background-color: blue; color: wheat;">
+            Server Message
+        </div>
+        
+
+        <div id="room1Message" style="background-color: red; color: wheat;">
+            room1 Message
+        </div>
+
+        <script>
+            var socket = io();
+
+            //1-1
+            $('#send1').click(function(){
+                socket.emit('personalChat', $('#input1').val())
+            })
+            socket.on('broadcast-one', function(data){
+                $('#myMessage').append('<h5>' + data + '</h5>')
+            })
+
+            //1-many
+            $('#send2').click(function(){
+                socket.emit('groupChat', $('#input2').val())
+            })
+            socket.on('broadcast-all', function(data){
+                $('#serverMessage').append('<h5>' + data + '</h5>')
+            })
+
+            //in room1
+            $('#room1').click(function(){
+                socket.emit('room1-join')
+            })
+            $('#room1-send').click(function(){
+                socket.emit('room1-send', $('#input3').val())
+            })
+            socket.on('broadcast-room1', function(data){
+                $('#room1Message').append('<h5>' + data + '</h5>')
+            })
+
+        </script>
+
+
+        <!-- Optional JavaScript; choose one of the two! -->
+
+        <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+        <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
+
+        <!-- Option 2: Separate Popper and Bootstrap JS -->
+        <!--
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+        -->
+
+    </body>
+</html>
