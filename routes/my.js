@@ -1,5 +1,6 @@
 var router = require('express').Router();
 
+
 router.use(signedIn); // 이 파일에 있는 모든 라우터에 signedIn 미들 웨어 적용
 
 router.get('/page', function(req, res){
@@ -36,12 +37,45 @@ router.post('/chat', function(req, res){
     })
 })
 
-//show a chat room(mine)
-// router.post('/chat/room/:chatroom', function(req, res){
-//     req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
-//         res.send( { messages : result, user : req.user._id } )
-//     })
-// })
+//enter the chat room & bring messages before
+router.get('/chat/room/:chatroom', function(req, res){
+    req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
+        res.send( { messages : result, user : req.user._id } )
+    })
+
+})
+
+//chat - socket.io
+function app2(io){
+
+    io.on('connection', function(socket){
+        console.log(socket.id, "is on socket");
+
+        socket.on('user-join', function(data){
+            var chatroomID = data;
+            socket.join(chatroomID);
+
+            console.log(socket.id, "join in", chatroomID)
+        })
+
+        socket.on('user-send', function(data){
+            var chatroomID = data.chatroomID,
+                message = data.message;
+
+            io.to(chatroomID).emit('broadcast', { socketID : socket.id, message : message });
+
+            console.log(socket.id, "send a message that is", "'", message, "' in", chatroomID)
+            
+
+        })
+
+
+
+    })
+
+    return router
+}
+
 
 //send a message
 router.post('/chat/message', function(req, res){
@@ -57,42 +91,44 @@ router.post('/chat/message', function(req, res){
     }).catch(()=>{
         res.send('nono..');
     })
+
 })
 
-//show a chat room
-router.get('/chat/room/:chatroom', function(req, res){
 
-    res.writeHead(200, {
-        "Connection" : "keep-alive",
-        "Content-Type" : "text/event-stream",
-        "Cache-Control" : "no-cache",
-    });
+// //show a chat room
+// router.get('/chat/room/:chatroom', function(req, res){
 
-    req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
-        result[result.length] = req.user._id;
-        res.write('event: test\n'); //event : test\n 이케 쓰면 안 된다? event랑 : 사이에 스페이스 있으면 안 된다?ㄹ??????/
-        res.write('data: ' + JSON.stringify(result) + '\n\n');
-    })
+//     res.writeHead(200, {
+//         "Connection" : "keep-alive",
+//         "Content-Type" : "text/event-stream",
+//         "Cache-Control" : "no-cache",
+//     });
 
-    const pipeline = [
-        { $match: { 'fullDocument.parent' : req.params.chatroom } }
-    ];
+//     req.app.db.collection('message').find( { parent : req.params.chatroom } ).toArray().then((result)=>{
+//         result[result.length] = req.user._id;
+//         res.write('event: test\n'); //event : test\n 이케 쓰면 안 된다? event랑 : 사이에 스페이스 있으면 안 된다?ㄹ??????/
+//         res.write('data: ' + JSON.stringify(result) + '\n\n');
+//     })
 
-    const collection = req.app.db.collection('message');
-    const changeStream = collection.watch(pipeline);
-    changeStream.on('change', (result)=>{
+//     const pipeline = [
+//         { $match: { 'fullDocument.parent' : req.params.chatroom } }
+//     ];
 
-        var data = [result.fullDocument];
-        data[data.length] = req.user._id;
+//     const collection = req.app.db.collection('message');
+//     const changeStream = collection.watch(pipeline);
+//     changeStream.on('change', (result)=>{
+
+//         var data = [result.fullDocument];
+//         data[data.length] = req.user._id;
         
-        res.write('event: test\n');
-        res.write('data: ' + JSON.stringify(data) + '\n\n');
-    });
+//         res.write('event: test\n');
+//         res.write('data: ' + JSON.stringify(data) + '\n\n');
+//     });
 
-});
+// });
 
 
-module.exports = router;
+module.exports = app2;
 
 function signedIn(req, res, next){
     if (req.user){
@@ -102,3 +138,6 @@ function signedIn(req, res, next){
         res.status(400).send("<script>alert('로그인을 해주세요.'); history.back();</script>");
     }
 }
+
+
+

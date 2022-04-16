@@ -59,46 +59,38 @@
       
       </div> 
 
+      <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
 
       <script>
         var chatroomID;
-        var eventSorce;
 
+        var socket = io();
+
+        //enter the chat room & show messages before
         $('.list-group-item').click(function(){
+
           chatroomID = this.dataset.id;
           $('#chat-title').html('room: ' + chatroomID);
           $('#chat-input-send').css('display', '')
+          $('.chat-content').empty();
 
-          if (eventSorce != undefined ) {
-            eventSorce.close()
-            $('.chat-content').empty();
-            console.log("!!")
-          }
+          $.get('/my/chat/room/' + chatroomID).then((result)=>{
+            var messages = result.messages
+            var user = result.user
 
-          eventSorce = new EventSource('/my/chat/room/' + chatroomID);
-          eventSorce.addEventListener('test', function(e){
-
-            var data = JSON.parse(e.data),
-                user = data[data.length - 1]
-
-            data.splice(data.length - 1, 1)
-
-            data.forEach(function(i){
-              if ( i.userid == user ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + i.content + '</span></li>')
-              else $('.chat-content').append('<li><span class=\"chat-box\">' + i.content + '</span></li>')
+            messages.forEach(function(message){
+              if ( user == message.userid ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + message.content + '</span></li>')
+              else $('.chat-content').append('<li><span class=\"chat-box\">' + message.content + '</span></li>')
+              $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
             })
-            
-            $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
-
-            $('#chat-input').val('')
-
-
           })
+          
+          socket.emit('user-join', chatroomID)
 
         })
 
-
+        //send a message on click
         $('#send').click(function(){
           var chatContent = $('#chat-input').val();
           var sendData = {
@@ -109,8 +101,13 @@
           $.post('/my/chat/message', sendData).then(()=>{
 
           })
-        })
 
+          socket.emit('user-send', { chatroomID: chatroomID, message : chatContent })
+          $('#chat-input').val('')
+
+
+        })
+        //send a message by enter
         $("#chat-input").on("keyup",function(e){ 
           if(e.keyCode==13) { 
             var chatContent = $('#chat-input').val();
@@ -120,10 +117,28 @@
             }
 
             $.post('/my/chat/message', sendData).then(()=>{
-              //
+
             })
+
+            socket.emit('user-send', { chatroomID: chatroomID, message : chatContent })
+            $('#chat-input').val('')
+
+
           } 
         }); 
+
+        //chat in real time (socket.io)
+        socket.on('broadcast', function(data){
+          var socketID = data.socketID,
+              message = data.message
+
+          if ( socket.id == socketID ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + message + '</span></li>')
+          else $('.chat-content').append('<li><span class=\"chat-box\">' + message + '</span></li>')
+
+          $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
+
+        })
+
 
         
       </script>

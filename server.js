@@ -8,6 +8,8 @@ const app = express();
 const http = require('http').createServer(app);
 const {Server} = require('socket.io');
 const io = new Server(http);
+// app.set('io', io) //router -> app.get('io').~
+// app.io = io;
 
 //
 const bodyParser = require('body-parser');
@@ -49,11 +51,11 @@ app.use(session({secret : '비밀코드', resave : true, saveUninitialized: fals
 app.use(passport.initialize());
 app.use(passport.session()); 
 
-// ----------my routes----------
+// ----------import my routes----------
 
 app.use('/article', require('./routes/article.js'));
 app.use('/board', require('./routes/board.js'));
-app.use('/my', require('./routes/my.js'));
+app.use('/my', require('./routes/my.js')(io));
 // app.use('/sign', require('./routes/sign.js'));
 
 // -----------------------------
@@ -132,6 +134,7 @@ app.get('/upload', function(req, res){
 
 let multer = require('multer');
 const { serializeUser } = require('passport');
+const router = require('./routes/article.js');
 var storage = multer.diskStorage({ //memorystorage는 램제 저장(휘발성)
     destination : function(req, file, cb){
         cb(null, './public/image')
@@ -359,30 +362,44 @@ app.get('/socket', function(req, res){
     res.render('socket.ejs')
 })
 
-io.on('connection', function(socket){
-    console.log("=================user on===============");
-    console.log(socket.id)
+// io.on('connection', function(socket){
+//     console.log("=================user on===============");
+//     console.log(socket.id)
 
-    //1:1
-    socket.on('personalChat', function(data){
-        io.to(socket.id).emit('broadcast-one', data)
-    })
+//     //1:1
+//     socket.on('personalChat', function(data){
+//         io.to(socket.id).emit('broadcast-one', data)
+//     })
 
-    //단체
-    socket.on('groupChat', function(data){
-        io.emit('broadcast-all', data)
-    })
+//     //단체
+//     socket.on('groupChat', function(data){
+//         io.emit('broadcast-all', data)
+//     })
 
-    //join room1 ?? make a room1?
-    socket.on('room1-join', function(){
-        console.log(socket.id + " enter in room1");
-        socket.join('room1');
-    })
+//     //join room1 ?? make a room1?
+//     socket.on('room1-join', function(){
+//         console.log(socket.id + " enter in room1");
+//         socket.join('room1');
+//     })
 
-    //message room1
-    socket.on('room1-send', function(data){
-        io.to('room1').emit('broadcast-room1', data)
-    })
+//     //message room1
+//     socket.on('room1-send', function(data){
+//         io.to('room1').emit('broadcast-room1', data)
+//     })
 
 
-})
+// })
+
+// io.on('connection', function(socket){
+//     console.log("------------------id: ", socket.id, "------------------")
+
+//     socket.on('user-join', function(data){
+//         var chatroomID = data
+//         socket.join(chatroomID);
+//     })
+
+//     socket.on('user-send', function(data){
+//         var chatroomID = data.chatroomID,
+//             message = data.message
+//     })
+// })
