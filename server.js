@@ -71,6 +71,8 @@ app.get('/fail', function(req, res){
 
 app.get('/', function(req, res){
     res.render('index.ejs');
+
+    console.log(req.user)
 })
 
 app.get('/sign/in', function(req, res){
