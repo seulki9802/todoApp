@@ -46,7 +46,11 @@
                <ul class="list-group chat-content">
                   <li><span class="chat-box">채팅방1 내용</span><span class=text-small>dd</span></li>
                   <li><span class="chat-box">채팅방1 내용</span><span class=text-small>dd</span></li>
-                  <li><span class=text-small>dd</span><span class="chat-box mine">채팅방1 내용</span></li>
+                  <li>
+                    <span class="mine">
+                      <span class=text-small>dd</span><span class="chat-box">채팅방1 내용</span> 
+                    </span>
+                  </li>
                 </ul>
             </div>
 
@@ -81,12 +85,21 @@
           $('.chat-content').empty();
 
           $.get('/my/chat/room/' + chatroomID).then((result)=>{
-            var messages = result.messages
-            var user = result.user
+            var messages = result.messages,
+                user = result.user
 
             messages.forEach(function(message){
-              if ( user == message.userid ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + message.content + '</span></li>')
-              else $('.chat-content').append('<li><span class=\"chat-box\">' + message.content + '</span></li>')
+              const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+              var time;
+              for (var i = 0; i < message.date.length; i ++){
+                if ( korean.test(message.date[i]) ) {
+                  time = message.date.slice(i, -3)
+                  break
+                }
+              }
+
+              if ( user == message.userid ) $('.chat-content').append('<li><span class="mine"><span class="text-small">' + time + '</span><span class=\"chat-box\">' + message.content + '</span></span></li>')
+              else $('.chat-content').append('<li><span class=\"chat-box\">' + message.content + '</span><span class="text-small">' + time + '</span></li>')
               $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
             })
           })
@@ -135,11 +148,20 @@
         //chat in real time (socket.io)
         socket.on('broadcast', function(data){
           var socketID = data.socketID,
-              message = data.message
+              message = data.message,
+              date = data.date
 
-          if ( socket.id == socketID ) $('.chat-content').append('<li><span class=\"chat-box mine\">' + message + '</span></li>')
-          else $('.chat-content').append('<li><span class=\"chat-box\">' + message + '</span></li>')
+          const korean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+          var time;
+          for (var i = 0; i < date.length; i ++){
+            if ( korean.test(date[i]) ) {
+              time = date.slice(i, -3)
+              break
+            }
+          }
 
+          if ( socket.id == socketID ) $('.chat-content').append('<li><span class="mine"><span class="text-small">' + time + '</span><span class=\"chat-box\">' + message + '</span></span></li>')
+          else $('.chat-content').append('<li><span class=\"chat-box\">' + message + '</span><span class="text-small">' + time + '</span></li>')
           $('.chat-content').scrollTop($('.chat-content')[0].scrollHeight)
 
         })

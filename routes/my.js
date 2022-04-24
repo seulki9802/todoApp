@@ -54,24 +54,15 @@ router.get('/chat/room/:chatroom', function(req, res){
 function app2(io){
 
     io.on('connection', function(socket){
-        console.log(socket.id, "is on socket");
-
         socket.on('user-join', function(data){
             var chatroomID = data;
             socket.join(chatroomID);
-
-            console.log(socket.id, "join in", chatroomID)
         })
 
         socket.on('user-send', function(data){
             var chatroomID = data.chatroomID,
                 message = data.message;
-
-            io.to(chatroomID).emit('broadcast', { socketID : socket.id, message : message });
-
-            console.log(socket.id, "send a message that is", "'", message, "' in", chatroomID)
-            
-
+            io.to(chatroomID).emit('broadcast', { socketID : socket.id, message : message, date : new Date().toLocaleString() });
         })
 
 
