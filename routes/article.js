@@ -10,7 +10,19 @@ router.get('/write', function(req, res){
     res.render('article/write.ejs');
 })
 
-router.post('/add', function(req, res){
+let multer = require('multer');
+var storage = multer.diskStorage({
+    destination : function(req, file, cb){
+        cb(null, './public/image')
+    },
+    filename : function(req, file, cb){
+        cb(null, req.body.fileName)
+    }
+});
+
+var upload = multer({storage : storage})
+;
+router.post('/add', upload.single('image'), function(req, res){
 
     var content = req.body.content;
     var contentLine = content.split("\n").length;
@@ -35,7 +47,7 @@ router.post('/add', function(req, res){
                 user : req.user._id,
                 nick : req.user.nick
             }
-    
+
             req.app.db.collection('post').insertOne(postData, function(error, result){
                 
                 req.app.db.collection('counter').updateOne({ name : 'totalPost' }, { $inc: { totalPost : 1 } }, function(error, reuslt){

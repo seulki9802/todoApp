@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
         <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
         <link rel="stylesheet" href="/public/main.css">
 
@@ -16,7 +17,7 @@
         <%- include('../nav.html') %>
 
         <div class="container mt-5">
-            <form action="/article/add" method="POST">
+            <form action="/article/add" method="POST" enctype="multipart/form-data">
 
                 <div class="form-group">
                     <label for="exampleFormControlSelect1">게시판 선택</label>
@@ -29,11 +30,19 @@
                   
                 <div class="form-group">
                     <label>제목</label>
-                    <input type="text" class="form-control" name="title">
+                    <input type="text" class="form-control">
+                    <input type="hidden" name="fileName" value="test">
                 </div>
                 <div class="form-group">
                     <label>내용</label>
                     <small class="text-secondary">최대 30줄까지 입력 가능합니다.</small>
+
+                    <!-- <a role="input" type="file" class="btn btn-sm btn-outline-secondary">
+                        사진 첨부하기
+                        <i class="bi bi-image"></i>
+                    </a> -->
+                    <input type="file" name="image" value="testㅇㄹㄴㅇㄹㄴ">
+                    
                     <textarea type="text" class="form-control" name="content"></textarea>
                 </div>
 
